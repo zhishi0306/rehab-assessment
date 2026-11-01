@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.DS_Store
+Thumbs.db
+
+# 提取出来的 CSV 默认输出目录
+csv/
+*.png
+*.jpg
