@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    name: 代码检查
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 安装 ruff
+        run: pip install ruff
+      - name: 静态检查
+        run: ruff check .
+      - name: 格式检查
+        run: ruff format --check .
+
+  smoke:
+    name: 样例跑通
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 安装依赖
+        run: pip install "numpy>=1.24" "pandas>=2.0" "matplotlib>=3.7"
+      - name: 下肢评估
+        run: >
+          python src/assess_lower_limb.py
+          -c data/samples/knee_extension_correct_01.csv
+          -i data/samples/knee_extension_incorrect_01.csv
+      - name: 上肢评估
+        run: >
+          python src/assess_upper_limb.py
+          -c data/samples/arm_raise_correct_01.csv
+          -i data/samples/arm_raise_incorrect_01.csv
+      - name: 坐标提取脚本语法检查
+        run: python -m py_compile src/extract_coordinates.py

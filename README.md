@@ -101,6 +101,23 @@ Release 按动作分类打包，可以只下需要的那一类：
 
 视频涉及真实受试者，虽然做过人脸打码，引用或再分发之前请确认已获得本人同意。
 
+## 开发
+
+```bat
+pip install -r requirements.txt
+pip install ruff pre-commit
+pre-commit install
+```
+
+提交前会自动跑 ruff 检查和格式化。手动执行：
+
+```bat
+ruff check .
+ruff format .
+```
+
+`.github/workflows/ci.yml` 在每次推送时做两件事：静态检查，以及用 `data/samples/` 的两个样例跑一遍上下肢评估，保证改完之后仍然算得出来。
+
 ## 许可
 
 代码以 MIT 协议发布，见 LICENSE。

@@ -31,16 +31,15 @@ class LowerLimbAssessment:
 
     def points(self, df, joint, side=None):
         s = side or self.side
-        cols = ["%s_%s_%s" % (s, joint, axis) for axis in "XYZ"]
+        cols = [f"{s}_{joint}_{axis}" for axis in "XYZ"]
         for c in cols:
             if c not in df.columns:
-                raise KeyError("%s 里没有 %s" % (os.path.basename(c), c))
+                raise KeyError(f"{os.path.basename(c)} 里没有 {c}")
         return df[cols].to_numpy(dtype=float)
 
     def drop_invalid(self, df):
         """检测失败的帧坐标为空，直接丢，不做插值填充。"""
-        need = [c for c in df.columns
-                if c.startswith(self.side + "_") and c[-1] in "XYZ"]
+        need = [c for c in df.columns if c.startswith(self.side + "_") and c[-1] in "XYZ"]
         if not need:
             need = [c for c in df.columns if c != "FRAME"]
         mask = df[need].notna().all(axis=1)
@@ -66,19 +65,17 @@ class LowerLimbAssessment:
     def hip_angle(self, df):
         # 有躯干点就用肩髋膝三点，没有就退回大腿与竖直线
         if self.side + "_SHOULDER_X" in df.columns:
-            return self.angle(self.points(df, "SHOULDER"),
-                              self.points(df, "HIP"),
-                              self.points(df, "KNEE"))
+            return self.angle(
+                self.points(df, "SHOULDER"), self.points(df, "HIP"), self.points(df, "KNEE")
+            )
         return self.tilt(self.points(df, "KNEE") - self.points(df, "HIP"))
 
     def joint_angles(self, df):
         hip = self.hip_angle(df)
-        knee = self.angle(self.points(df, "HIP"),
-                          self.points(df, "KNEE"),
-                          self.points(df, "ANKLE"))
-        ankle = self.angle(self.points(df, "KNEE"),
-                           self.points(df, "ANKLE"),
-                           self.points(df, "FOOT_INDEX"))
+        knee = self.angle(self.points(df, "HIP"), self.points(df, "KNEE"), self.points(df, "ANKLE"))
+        ankle = self.angle(
+            self.points(df, "KNEE"), self.points(df, "ANKLE"), self.points(df, "FOOT_INDEX")
+        )
         return {"hip": hip, "knee": knee, "ankle": ankle}
 
     def speed(self, df):
@@ -105,7 +102,7 @@ class LowerLimbAssessment:
     def symmetry(df, side_a, side_b):
         span = []
         for s in (side_a, side_b):
-            col = "%s_ANKLE_X" % s
+            col = f"{s}_ANKLE_X"
             if col not in df.columns:
                 return None
             span.append(float(df[col].max() - df[col].min()))
@@ -125,7 +122,7 @@ class LowerLimbAssessment:
         for name, key in (("屈髋", "hip"), ("屈膝", "knee"), ("踝背屈", "ankle")):
             low, high = LEVELS[key]
             items.append((name, self.grade(rom[key], low, high), 2))
-        items.append(("协调性", int(round(smooth * 4)), 4))
+        items.append(("协调性", round(smooth * 4), 4))
         total = sum(v for _, v, _ in items)
         full = sum(m for _, _, m in items)
         return items, total, full
@@ -134,7 +131,7 @@ class LowerLimbAssessment:
         raw = self.load(path)
         df, keep = self.drop_invalid(raw)
         if len(df) < 5:
-            raise ValueError("有效帧不足(%d)，无法分析" % len(df))
+            raise ValueError(f"有效帧不足({len(df)})，无法分析")
 
         angles = self.joint_angles(df)
         rom = {k: float(np.nanmax(v) - np.nanmin(v)) for k, v in angles.items()}
@@ -159,22 +156,22 @@ class LowerLimbAssessment:
         }
 
     def report(self, r):
-        lines = ["=" * 52,
-                 "文件: %s" % r["file"],
-                 "患侧: %s   有效帧: %d/%d (%.0f%%)" %
-                 (r["side"], r["valid"], r["frames"], r["keep"] * 100),
-                 "",
-                 "关节活动度"]
+        lines = [
+            "=" * 52,
+            f"文件: {r['file']}",
+            f"患侧: {r['side']}   有效帧: {r['valid']}/{r['frames']} ({r['keep'] * 100:.0f}%)",
+            "",
+            "关节活动度",
+        ]
         for k, label in (("hip", "髋"), ("knee", "膝"), ("ankle", "踝")):
-            lines.append("  %s  %6.1f°" % (label, r["rom"][k]))
-        lines.append("速度均值 %.3f 单位/秒   平滑度 %.2f" %
-                     (r["speed_mean"], r["smooth"]))
+            lines.append(f"  {label}  {r['rom'][k]:6.1f}°")
+        lines.append(f"速度均值 {r['speed_mean']:.3f} 单位/秒   平滑度 {r['smooth']:.2f}")
         if r["symmetry"] is not None:
-            lines.append("左右对称性 %.2f" % r["symmetry"])
+            lines.append(f"左右对称性 {r['symmetry']:.2f}")
         lines.append("")
-        lines.append("自动可测项评分 %d/%d" % (r["score"], r["full"]))
+        lines.append(f"自动可测项评分 {r['score']}/{r['full']}")
         for name, got, full in r["items"]:
-            lines.append("  %-6s %d/%d" % (name, got, full))
+            lines.append(f"  {name:<6} {got}/{full}")
         lines.append("=" * 52)
         return "\n".join(lines)
 
@@ -183,9 +180,10 @@ class LowerLimbAssessment:
         right = self.analyze(incorrect_path)
         print(self.report(left))
         print(self.report(right))
-        print("动作正确 vs 错误: 评分 %d vs %d，髋活动度 %.1f° vs %.1f°" %
-              (left["score"], right["score"],
-               left["rom"]["hip"], right["rom"]["hip"]))
+        print(
+            f"动作正确 vs 错误: 评分 {left['score']} vs {right['score']}，"
+            f"髋活动度 {left['rom']['hip']:.1f}° vs {right['rom']['hip']:.1f}°"
+        )
         return left, right
 
     def plot(self, correct, incorrect):
@@ -206,8 +204,9 @@ class LowerLimbAssessment:
         ax[0].set_ylabel("活动度 (°)")
         ax[0].legend()
 
-        ax[1].bar(["正确", "错误"], [correct["score"], incorrect["score"]],
-                  color=["#4C78A8", "#E45756"])
+        ax[1].bar(
+            ["正确", "错误"], [correct["score"], incorrect["score"]], color=["#4C78A8", "#E45756"]
+        )
         ax[1].set_ylabel("自动可测项评分")
         ax[1].set_ylim(0, correct["full"])
 

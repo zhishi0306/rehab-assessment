@@ -8,12 +8,32 @@ import mediapipe as mp
 POSE = mp.solutions.pose
 
 # 与数据集 CSV 的列顺序对齐，left/right 交替
-UPPER = ["LEFT_SHOULDER", "RIGHT_SHOULDER", "LEFT_ELBOW", "RIGHT_ELBOW",
-         "LEFT_WRIST", "RIGHT_WRIST", "LEFT_PINKY", "RIGHT_PINKY",
-         "LEFT_INDEX", "RIGHT_INDEX", "LEFT_THUMB", "RIGHT_THUMB"]
-LOWER = ["LEFT_HIP", "RIGHT_HIP", "LEFT_KNEE", "RIGHT_KNEE",
-         "LEFT_ANKLE", "RIGHT_ANKLE", "LEFT_HEEL", "RIGHT_HEEL",
-         "LEFT_FOOT_INDEX", "RIGHT_FOOT_INDEX"]
+UPPER = [
+    "LEFT_SHOULDER",
+    "RIGHT_SHOULDER",
+    "LEFT_ELBOW",
+    "RIGHT_ELBOW",
+    "LEFT_WRIST",
+    "RIGHT_WRIST",
+    "LEFT_PINKY",
+    "RIGHT_PINKY",
+    "LEFT_INDEX",
+    "RIGHT_INDEX",
+    "LEFT_THUMB",
+    "RIGHT_THUMB",
+]
+LOWER = [
+    "LEFT_HIP",
+    "RIGHT_HIP",
+    "LEFT_KNEE",
+    "RIGHT_KNEE",
+    "LEFT_ANKLE",
+    "RIGHT_ANKLE",
+    "LEFT_HEEL",
+    "RIGHT_HEEL",
+    "LEFT_FOOT_INDEX",
+    "RIGHT_FOOT_INDEX",
+]
 
 VIDEO_EXT = (".mp4", ".mov", ".avi", ".mkv")
 
@@ -36,16 +56,20 @@ def header_for(names):
 def extract(video_path, out_path, names, world=True):
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
-        raise IOError("打不开视频: " + video_path)
+        raise OSError("打不开视频: " + video_path)
 
     index = {lm.name: int(lm) for lm in POSE.PoseLandmark}
     rows = []
     frame_no = 0
     hit = 0
 
-    with POSE.Pose(static_image_mode=False, model_complexity=2,
-                   smooth_landmarks=True, min_detection_confidence=0.5,
-                   min_tracking_confidence=0.5) as pose:
+    with POSE.Pose(
+        static_image_mode=False,
+        model_complexity=2,
+        smooth_landmarks=True,
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5,
+    ) as pose:
         while True:
             ok, frame = cap.read()
             if not ok:
@@ -63,8 +87,12 @@ def extract(video_path, out_path, names, world=True):
                 for name in names:
                     i = index[name]
                     p = body[i]
-                    row += [round(p.x, 6), round(p.y, 6), round(p.z, 6),
-                            round(norm[i].visibility, 6)]
+                    row += [
+                        round(p.x, 6),
+                        round(p.y, 6),
+                        round(p.z, 6),
+                        round(norm[i].visibility, 6),
+                    ]
             else:
                 row += [""] * (len(names) * 4)
             rows.append(row)
@@ -98,11 +126,13 @@ def main():
     ap = argparse.ArgumentParser(description="提取人体关键点坐标到 CSV")
     ap.add_argument("input", nargs="+", help="视频文件或目录")
     ap.add_argument("-o", "--output", default="csv", help="输出目录")
-    ap.add_argument("--landmarks", default="all",
-                    choices=["all", "upper", "lower"],
-                    help="all=33点(133列) upper=上肢12点(49列) lower=下肢10点(41列)")
-    ap.add_argument("--pixel", action="store_true",
-                    help="输出归一化图像坐标而不是米制世界坐标")
+    ap.add_argument(
+        "--landmarks",
+        default="all",
+        choices=["all", "upper", "lower"],
+        help="all=33点(133列) upper=上肢12点(49列) lower=下肢10点(41列)",
+    )
+    ap.add_argument("--pixel", action="store_true", help="输出归一化图像坐标而不是米制世界坐标")
     ap.add_argument("--skip-existing", action="store_true")
     args = ap.parse_args()
 
@@ -117,11 +147,10 @@ def main():
         stem = os.path.splitext(os.path.basename(video))[0] + "_3d_coordinates.csv"
         out = os.path.join(args.output, stem)
         if args.skip_existing and os.path.exists(out):
-            print("[%d/%d] 跳过 %s" % (k, total, stem))
+            print(f"[{k}/{total}] 跳过 {stem}")
             continue
         n, hit = extract(video, out, names, world=not args.pixel)
-        print("[%d/%d] %s  帧 %d  有效 %d (%.0f%%)" %
-              (k, total, stem, n, hit, 100.0 * hit / max(n, 1)))
+        print(f"[{k}/{total}] {stem}  帧 {n}  有效 {hit} ({100.0 * hit / max(n, 1):.0f}%)")
 
     return 0
 
