@@ -11,7 +11,7 @@
 
 ## 完整数据
 
-完整的视频（339 段，约 830 MB）和对应 CSV 没有放进仓库，单独放在 Release 里：[数据集 v1.0](https://github.com/zhishi0306/my_project2/releases/tag/v1.0)。
+完整的视频（339 段，约 830 MB）和对应 CSV 没有放进仓库，单独放在 Release 里：[数据集 v1.0](https://github.com/zhishi0306/rehab-assessment/releases/tag/v1.0)。
 
 按动作分类打包，可以只下需要的那一类：
 

@@ -85,7 +85,7 @@ python src/assess_upper_limb.py \
 
 ## 数据
 
-完整视频和 CSV（约 830 MB）没有放进仓库，单独发布在 [Release v1.0](https://github.com/zhishi0306/my_project2/releases/tag/v1.0) 里。`data/samples/` 只留了四个小文件，够跑通流程。
+完整视频和 CSV（约 830 MB）没有放进仓库，单独发布在 [Release v1.0](https://github.com/zhishi0306/rehab-assessment/releases/tag/v1.0) 里。`data/samples/` 只留了四个小文件，够跑通流程。
 
 Release 按动作分类打包，可以只下需要的那一类：
 
