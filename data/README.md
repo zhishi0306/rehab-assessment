@@ -11,7 +11,21 @@
 
 ## 完整数据
 
-完整的视频（339 段，约 830 MB）和对应 CSV 没有放进仓库，单独放在 Release 里：<在此填 Release 链接>。
+完整的视频（339 段，约 830 MB）和对应 CSV 没有放进仓库，单独放在 Release 里：[数据集 v1.0](https://github.com/zhishi0306/my_project2/releases/tag/v1.0)。
+
+按动作分类打包，可以只下需要的那一类：
+
+| 包 | 条目数 | 体积 |
+|---|---|---|
+| 01_Sit_To_Stand_Correct.zip | 87 | 296 MB |
+| 02_Sit_To_Stand_Incorrect.zip | 56 | 102 MB |
+| 03_Knee_Extension_Correct.zip | 52 | 136 MB |
+| 04_Knee_Extension_Incorrect.zip | 70 | 105 MB |
+| 05_Arm_Raise_Correct.zip | 59 | 101 MB |
+| 06_Arm_Raise_Incorrect.zip | 63 | 87 MB |
+| 07_CSV.zip | 80 | 9 MB |
+
+前六个包解压后是 `动作 / 正确或错误 /` 目录，每个视频旁有同名 CSV；`07_CSV.zip` 里是 `WLUcsv/`（原始导出）和 `WLU_finalcsv/`（整理版）两套 CSV。
 
 原始目录 `archive-WLU/Blurred/` 下按 `动作 / 正确或错误` 分文件夹，视频文件名与同名 CSV 的帧序一一对应。
 

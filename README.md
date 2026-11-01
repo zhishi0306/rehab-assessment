@@ -85,7 +85,19 @@ python src/assess_upper_limb.py \
 
 ## 数据
 
-完整视频和 CSV（约 830 MB）没有放进仓库，单独发布在 Release 里。`data/samples/` 只留了四个小文件，够跑通流程。
+完整视频和 CSV（约 830 MB）没有放进仓库，单独发布在 [Release v1.0](https://github.com/zhishi0306/my_project2/releases/tag/v1.0) 里。`data/samples/` 只留了四个小文件，够跑通流程。
+
+Release 按动作分类打包，可以只下需要的那一类：
+
+| 包 | 内容 | 体积 |
+|---|---|---|
+| 01_Sit_To_Stand_Correct.zip | 坐立 / 正确 | 296 MB |
+| 02_Sit_To_Stand_Incorrect.zip | 坐立 / 错误 | 102 MB |
+| 03_Knee_Extension_Correct.zip | 伸膝 / 正确 | 136 MB |
+| 04_Knee_Extension_Incorrect.zip | 伸膝 / 错误 | 105 MB |
+| 05_Arm_Raise_Correct.zip | 举臂 / 正确 | 101 MB |
+| 06_Arm_Raise_Incorrect.zip | 举臂 / 错误 | 87 MB |
+| 07_CSV.zip | 全部 CSV 汇总 | 9 MB |
 
 视频涉及真实受试者，虽然做过人脸打码，引用或再分发之前请确认已获得本人同意。
 
